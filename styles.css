@@ -1,0 +1,237 @@
+/* Previous styles remain the same */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.add-contact {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.input-field {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.add-button,
+.bulk-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    flex: 1;
+}
+
+.bulk-button {
+    background-color: #2196F3;
+}
+
+.preview-area {
+    margin-top: 15px;
+    display: none;
+}
+
+.preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.preview-table th,
+.preview-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.preview-table th {
+    background-color: #f5f5f5;
+}
+
+/* Rest of the previous styles */
+.contact-list {
+    display: grid;
+    gap: 15px;
+}
+
+.contact-card {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.contact-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.contact-info {
+    flex-grow: 1;
+}
+
+.name {
+    font-weight: bold;
+    color: #333;
+}
+
+.phone {
+    color: #666;
+    margin-top: 5px;
+}
+
+.call-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    margin-left: 10px;
+}
+
+.delete-button {
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.notes-section {
+    margin-top: 10px;
+}
+
+.notes-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-top: 5px;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 60px;
+}
+
+.timestamp {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+}
+
+@media (max-width: 768px) {
+    .button-group {
+        flex-direction: column;
+    }
+
+    .add-button,
+    .bulk-button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .contact-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .call-button,
+    .delete-button {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .contact-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+
+    .call-button,
+    .delete-button {
+        margin-left: 0;
+        margin-top: 5px;
+    }
+}
+
+.edit-buttons {
+    display: flex;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.edit-button {
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.save-edit-button {
+    background-color: #4CAF50;
+}
+
+.cancel-edit-button {
+    background-color: #f44336;
+}
+
+.editable-input {
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+.select-all {
+    margin-bottom: 10px;
+}
+
+.contact-checkbox {
+    margin-right: 10px;
+}
