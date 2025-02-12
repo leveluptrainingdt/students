@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Directory</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.js"></script>
+    <style>
+        /* Previous styles remain the same */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .add-contact {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .add-button, .bulk-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .bulk-button {
+            background-color: #2196F3;
+        }
+
+        .preview-area {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .preview-table th, .preview-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .preview-table th {
+            background-color: #f5f5f5;
+        }
+
+        /* Rest of the previous styles */
+        .contact-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .contact-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .contact-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .contact-info {
+            flex-grow: 1;
+        }
+
+        .name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .phone {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .call-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            margin-left: 10px;
+        }
+
+        .delete-button {
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .notes-section {
+            margin-top: 10px;
+        }
+
+        .notes-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 5px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .timestamp {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 480px) {
+            .contact-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .call-button, .delete-button {
+                margin-left: 0;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Contact Directory</h1>
+        <div class="add-contact">
+            <textarea id="contactInput" class="input-field" rows="4" 
+                placeholder="Enter contact(s): Single contact like 'John 1234567890' or bulk data"></textarea>
+            <div class="button-group">
+                <button onclick="addContact()" class="add-button">Add Single Contact</button>
+                <button onclick="handleBulkData()" class="bulk-button">Process Bulk Data</button>
+            </div>
+            <div id="previewArea" class="preview-area">
+                <h3>Preview Parsed Contacts</h3>
+                <table id="previewTable" class="preview-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Phone</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <button onclick="confirmBulkAdd()" class="add-button" style="margin-top: 10px;">
+                    Confirm and Add All
+                </button>
+            </div>
+        </div>
+        <div class="contact-list" id="contactList"></div>
+    </div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBZzqOAeB4yclKluaFxjRRN2OZVVAM66LU",
+            authDomain: "students-fae3c.firebaseapp.com",
+            projectId: "students-fae3c",
+            storageBucket: "students-fae3c.firebasestorage.app",
+            messagingSenderId: "882805671020",
+            appId: "1:882805671020:web:6e65219a0779ad046ec449",
+            measurementId: "G-03NELEPK0H"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let parsedContacts = [];
+
+        // Function to parse bulk data
+        function parseBulkData(input) {
+            const contacts = [];
+            let currentPosition = 0;
+            const phoneRegex = /\d{10}/g;
+            let match;
+
+            while ((match = phoneRegex.exec(input)) !== null) {
+                const phone = match[0];
+                const startPos = match.index;
+                
+                // Get the text after the previous number and before this number
+                let name = '';
+                if (contacts.length === 0) {
+                    name = input.substring(currentPosition + 10, startPos).trim();
+                } else {
+                    name = input.substring(currentPosition, startPos).trim();
+                }
+                
+                // If no name before the number, look after it
+                if (!name && startPos + 10 < input.length) {
+                    const nextMatch = phoneRegex.exec(input);
+                    if (nextMatch) {
+                        name = input.substring(startPos + 10, nextMatch.index).trim();
+                        phoneRegex.lastIndex = nextMatch.index; // Reset regex position
+                    } else {
+                        name = input.substring(startPos + 10).trim();
+                    }
+                }
+
+                if (name) {
+                    contacts.push({ name, phone });
+                }
+                
+                currentPosition = startPos + 10;
+            }
+
+            // Check for the last name if there's text after the last number
+            if (currentPosition < input.length) {
+                const lastName = input.substring(currentPosition).trim();
+                if (lastName && contacts.length > 0) {
+                    contacts[contacts.length - 1].name = lastName;
+                }
+            }
+
+            return contacts;
+        }
+
+        // Function to handle bulk data
+        function handleBulkData() {
+            const input = document.getElementById('contactInput').value;
+            parsedContacts = parseBulkData(input);
+            
+            const previewArea = document.getElementById('previewArea');
+            const previewTable = document.getElementById('previewTable').getElementsByTagName('tbody')[0];
+            previewTable.innerHTML = '';
+            
+            parsedContacts.forEach(contact => {
+                const row = previewTable.insertRow();
+                row.insertCell(0).textContent = contact.name;
+                row.insertCell(1).textContent = contact.phone;
+            });
+            
+            previewArea.style.display = 'block';
+        }
+
+        // Function to confirm and add bulk contacts
+        async function confirmBulkAdd() {
+            try {
+                const batch = db.batch();
+                
+                parsedContacts.forEach(contact => {
+                    const docRef = db.collection('contacts').doc();
+                    batch.set(docRef, {
+                        name: contact.name,
+                        phone: contact.phone,
+                        notes: '',
+                        timestamp: new Date().toISOString()
+                    });
+                });
+                
+                await batch.commit();
+                document.getElementById('contactInput').value = '';
+                document.getElementById('previewArea').style.display = 'none';
+                loadContacts();
+            } catch (error) {
+                console.error("Error adding bulk contacts: ", error);
+                alert('Error adding contacts');
+            }
+        }
+
+        // Rest of the previous functions remain the same
+        function parseContact(input) {
+            input = input.trim();
+            const phoneRegex = /(\d{10})/;
+            const phoneMatch = input.match(phoneRegex);
+            
+            if (!phoneMatch) return null;
+            
+            const phone = phoneMatch[1];
+            const name = input.replace(phone, '').trim();
+            
+            return { name, phone };
+        }
+
+        async function addContact() {
+            const input = document.getElementById('contactInput').value;
+            const contact = parseContact(input);
+            
+            if (!contact || !contact.name) {
+                alert('Please enter both name and a valid 10-digit phone number');
+                return;
+            }
+
+            try {
+                await db.collection('contacts').add({
+                    name: contact.name,
+                    phone: contact.phone,
+                    notes: '',
+                    timestamp: new Date().toISOString()
+                });
+                
+                document.getElementById('contactInput').value = '';
+                loadContacts();
+            } catch (error) {
+                console.error("Error adding contact: ", error);
+                alert('Error adding contact');
+            }
+        }
+
+        async function deleteContact(id) {
+            try {
+                await db.collection('contacts').doc(id).delete();
+                loadContacts();
+            } catch (error) {
+                console.error("Error deleting contact: ", error);
+                alert('Error deleting contact');
+            }
+        }
+
+        let timeouts = {};
+        function updateNotes(id, notes) {
+            if (timeouts[id]) {
+                clearTimeout(timeouts[id]);
+            }
+            
+            timeouts[id] = setTimeout(async () => {
+                try {
+                    await db.collection('contacts').doc(id).update({
+                        notes: notes,
+                        timestamp: new Date().toISOString()
+                    });
+                } catch (error) {
+                    console.error("Error updating notes: ", error);
+                }
+            }, 500);
+        }
+
+        function createContactCard(contact) {
+            const contactCard = document.createElement('div');
+            contactCard.className = 'contact-card';
+            
+            contactCard.innerHTML = `
+                <div class="contact-header">
+                    <div class="contact-info">
+                        <div class="name">${contact.name}</div>
+                        <div class="phone">${contact.phone}</div>
+                    </div>
+                    <a href="tel:+91${contact.phone}" class="call-button">Call</a>
+                    <button onclick="deleteContact('${contact.id}')" class="delete-button">Delete</button>
+                </div>
+                <div class="notes-section">
+                    <textarea 
+                        class="notes-input" 
+                        placeholder="Add notes here..."
+                        oninput="updateNotes('${contact.id}', this.value)"
+                    >${contact.notes || ''}</textarea>
+                    <div class="timestamp">
+                        ${contact.timestamp ? 'Last updated: ' + new Date(contact.timestamp).toLocaleString() : ''}
+                    </div>
+                </div>
+            `;
+            
+            return contactCard;
+        }
+
+        async function loadContacts() {
+            const contactList = document.getElementById('contactList');
+            contactList.innerHTML = '';
+            
+            try {
+                const snapshot = await db.collection('contacts').get();
+                snapshot.forEach(doc => {
+                    const contact = { id: doc.id, ...doc.data() };
+                    contactList.appendChild(createContactCard(contact));
+                });
+            } catch (error) {
+                console.error("Error loading contacts: ", error);
+                alert('Error loading contacts');
+            }
+        }
+
+        // Initialize the contact list
+        loadContacts();
+    </script>
+</body>
+</html>
