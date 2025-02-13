@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Directory</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-auth-compat.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header-container">
+            <h1>Contact Directory</h1>
+            <button onclick="logout()" class="logout-button">Logout</button>
+        </div>
+        <div class="add-contact">
+            <textarea id="contactInput" class="input-field" rows="4"
+                placeholder="Enter contact(s): Single contact like 'John 1234567890' or bulk data"></textarea>
+            <div class="button-group">
+                <button onclick="addContact()" class="add-button">Add Single Contact</button>
+                <button onclick="handleBulkData()" class="bulk-button">Process Bulk Data</button>
+            </div>
+            <div id="previewArea" class="preview-area">
+                <h3>Preview Parsed Contacts</h3>
+                <table id="previewTable" class="preview-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Phone</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <button onclick="confirmBulkAdd()" class="add-button" style="margin-top: 10px;">
+                    Confirm and Add All
+                </button>
+            </div>
+        </div>
+        <div class="search-contact">
+            <input type="text" id="searchInput" class="input-field" placeholder="Search contacts by name or phone" oninput="searchContacts()">
+        </div>
+        <div class="select-all">
+            <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"> Select All
+            <button onclick="deleteSelectedContacts()" class="delete-button">Delete Selected</button>
+        </div>
+        <div class="contact-list" id="contactList"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

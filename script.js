@@ -12,6 +12,21 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const auth = firebase.auth();
+
+// Check authentication
+auth.onAuthStateChanged(user => {
+    if (!user) {
+        window.location.href = 'index.html';
+        return;
+    }
+    loadContacts(); // Load contacts after authentication
+});
+
+// Function to logout
+function logout() {
+    auth.signOut();
+}
 
 let parsedContacts = [];
 
@@ -78,12 +93,16 @@ function handleBulkData() {
 
 // Function to confirm and add bulk contacts
 async function confirmBulkAdd() {
+    const user = auth.currentUser;
+    if (!user) return;
+
     try {
         const batch = db.batch();
 
         parsedContacts.forEach((contact, index) => {
             const docRef = db.collection('contacts').doc();
             batch.set(docRef, {
+                userId: user.uid,
                 name: contact.name,
                 phone: contact.phone,
                 notes: '',
@@ -117,8 +136,11 @@ function parseContact(input) {
     return { name, phone };
 }
 
-// Modified addContact function to include createdAt and order timestamp
+// Modified addContact function
 async function addContact() {
+    const user = auth.currentUser;
+    if (!user) return;
+
     const input = document.getElementById('contactInput').value;
     const contact = parseContact(input);
 
@@ -132,6 +154,7 @@ async function addContact() {
         const lastOrder = snapshot.empty ? 0 : snapshot.docs[0].data().order + 1;
 
         await db.collection('contacts').add({
+            userId: user.uid,
             name: contact.name,
             phone: contact.phone,
             notes: '',
@@ -320,13 +343,20 @@ async function deleteSelectedContacts() {
     }
 }
 
-// Modified loadContacts function to sort by order field
+// Modified loadContacts function to filter by user
 async function loadContacts() {
+    const user = auth.currentUser;
+    if (!user) return;
+
     const contactList = document.getElementById('contactList');
     contactList.innerHTML = '';
 
     try {
-        const snapshot = await db.collection('contacts').orderBy('order').get();
+        const snapshot = await db.collection('contacts')
+            .where('userId', '==', user.uid)
+            .orderBy('order')
+            .get();
+            
         snapshot.forEach(doc => {
             const contact = { id: doc.id, ...doc.data() };
             contactList.appendChild(createContactCard(contact));
@@ -335,6 +365,35 @@ async function loadContacts() {
         console.error("Error loading contacts: ", error);
         alert('Error loading contacts');
     }
+}
+
+// Function to search contacts
+function searchContacts() {
+    const searchInput = document.getElementById('searchInput');
+    if (!searchInput) return;
+    
+    const query = searchInput.value.toLowerCase().trim();
+    const contactList = document.getElementById('contactList');
+    if (!contactList) return;
+
+    const contactCards = contactList.getElementsByClassName('contact-card');
+    
+    Array.from(contactCards).forEach(card => {
+        try {
+            const nameElement = card.querySelector('.name');
+            const phoneElement = card.querySelector('.phone');
+            
+            if (!nameElement || !phoneElement) return;
+            
+            const name = nameElement.textContent?.toLowerCase() || '';
+            const phone = phoneElement.textContent?.toLowerCase() || '';
+            
+            const isMatch = name.includes(query) || phone.includes(query);
+            card.style.display = isMatch ? '' : 'none';
+        } catch (error) {
+            console.error('Error processing contact card:', error);
+        }
+    });
 }
 
 // Initialize the contact list
