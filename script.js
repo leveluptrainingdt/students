@@ -20,7 +20,7 @@ auth.onAuthStateChanged(user => {
         window.location.href = 'index.html';
         return;
     }
-    loadContacts(); // Load contacts after authentication
+    initializeContacts(); // Initialize contacts after authentication
 });
 
 // Function to logout
@@ -171,17 +171,132 @@ async function addContact() {
     }
 }
 
+let deletedContacts = [];
+let undoTimeout;
+
+// Function to show undo message with countdown animation and improved UI
+function showUndoMessage() {
+    const undoContainer = document.createElement('div');
+    undoContainer.id = 'undoContainer';
+    undoContainer.style.position = 'fixed';
+    undoContainer.style.bottom = '20px';
+    undoContainer.style.left = '50%';
+    undoContainer.style.transform = 'translateX(-50%)';
+    undoContainer.style.backgroundColor = '#333';
+    undoContainer.style.color = '#fff';
+    undoContainer.style.padding = '10px 20px';
+    undoContainer.style.borderRadius = '5px';
+    undoContainer.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.2)';
+    undoContainer.style.zIndex = '1000';
+    undoContainer.style.display = 'flex';
+    undoContainer.style.alignItems = 'center';
+    undoContainer.style.gap = '10px';
+    undoContainer.innerHTML = `
+        <span>Contacts deleted.</span>
+        <button onclick="undoDelete()" style="background-color: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">Undo</button>
+        <span id="countdown" style="font-weight: bold;">5s</span>
+    `;
+    document.body.appendChild(undoContainer);
+
+    let countdown = 5;
+    const countdownElement = document.getElementById('countdown');
+    const countdownInterval = setInterval(() => {
+        countdown -= 1;
+        countdownElement.textContent = `${countdown}s`;
+        if (countdown === 0) {
+            clearInterval(countdownInterval);
+            document.body.removeChild(undoContainer);
+            deletedContacts = [];
+        }
+    }, 1000);
+
+    undoTimeout = setTimeout(() => {
+        clearInterval(countdownInterval);
+        document.body.removeChild(undoContainer);
+        deletedContacts = [];
+    }, 5000);
+}
+
+// Function to undo delete
+async function undoDelete() {
+    clearTimeout(undoTimeout);
+    const undoContainer = document.getElementById('undoContainer');
+    if (undoContainer) {
+        document.body.removeChild(undoContainer);
+    }
+
+    const batch = db.batch();
+    deletedContacts.forEach(contact => {
+        const docRef = db.collection('contacts').doc(contact.id);
+        batch.set(docRef, contact.data);
+    });
+
+    try {
+        await batch.commit();
+        loadContacts();
+        deletedContacts = [];
+    } catch (error) {
+        console.error("Error undoing delete: ", error);
+        alert('Error undoing delete');
+    }
+}
+
+// Modified deleteContact function
 async function deleteContact(id) {
     if (!confirm("Are you sure you want to delete this contact?")) {
         return;
     }
 
     try {
-        await db.collection('contacts').doc(id).delete();
-        loadContacts();
+        const docRef = db.collection('contacts').doc(id);
+        const doc = await docRef.get();
+        if (doc.exists) {
+            deletedContacts.push({ id: doc.id, data: doc.data() });
+            await docRef.delete();
+            loadContacts();
+            showUndoMessage();
+        }
     } catch (error) {
         console.error("Error deleting contact: ", error);
         alert('Error deleting contact');
+    }
+}
+
+// Optimized deleteSelectedContacts function
+async function deleteSelectedContacts() {
+    if (!confirm("Are you sure you want to delete the selected contacts?")) {
+        return;
+    }
+
+    const checkboxes = document.querySelectorAll('.contact-checkbox:checked');
+    const batch = db.batch();
+    let hasContactsToDelete = false;
+
+    const deletePromises = Array.from(checkboxes).map(async checkbox => {
+        const id = checkbox.getAttribute('data-id');
+        const docRef = db.collection('contacts').doc(id);
+        const doc = await docRef.get();
+        if (doc.exists) {
+            deletedContacts.push({ id: doc.id, data: doc.data() });
+            batch.delete(docRef);
+            hasContactsToDelete = true;
+        }
+    });
+
+    await Promise.all(deletePromises);
+
+    if (!hasContactsToDelete) {
+        alert('No contacts selected for deletion.');
+        return;
+    }
+
+    try {
+        await batch.commit();
+        loadContacts();
+        showUndoMessage();
+    } catch (error) {
+        console.error("Error deleting selected contacts: ", error);
+        alert('Error deleting selected contacts');
     }
 }
 
@@ -307,9 +422,15 @@ function createNormalCard(contact) {
                 </div>
             </div>
             <div class="action-buttons">
-                <a href="tel:+91${contact.phone}" class="call-button">📞 Call</a>
-                <a href="https://wa.me/91${contact.phone}" class="whatsapp-button" target="_blank">📱 WhatsApp</a>
-                <button onclick="deleteContact('${contact.id}')" class="delete-button">🗑️ Delete</button>
+                <a href="tel:+91${contact.phone}" class="call-button">
+                    <img src="icons/call.svg" alt="Call">
+                </a>
+                <a href="https://wa.me/91${contact.phone}" class="whatsapp-button" target="_blank">
+                    <img src="icons/whatsapp.svg" alt="WhatsApp">
+                </a>
+                <button onclick="deleteContact('${contact.id}')" class="delete-button">
+                    <img src="icons/delete.svg" alt="Delete">
+                </button>
             </div>
         </div>
         <div class="notes-section">
@@ -423,27 +544,56 @@ function toggleSelectAll(source) {
     checkboxes.forEach(checkbox => checkbox.checked = source.checked);
 }
 
-// Function to delete selected contacts
-async function deleteSelectedContacts() {
-    if (!confirm("Are you sure you want to delete the selected contacts?")) {
-        return;
-    }
+// Function to save contacts to local storage
+function saveContactsToLocal(contacts) {
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+}
 
-    const checkboxes = document.querySelectorAll('.contact-checkbox:checked');
-    const batch = db.batch();
+// Function to load contacts from local storage
+function loadContactsFromLocal() {
+    const contacts = localStorage.getItem('contacts');
+    return contacts ? JSON.parse(contacts) : [];
+}
 
-    checkboxes.forEach(checkbox => {
-        const id = checkbox.getAttribute('data-id');
-        const docRef = db.collection('contacts').doc(id);
-        batch.delete(docRef);
-    });
+// Modified loadContacts function to sync with local storage
+async function loadContacts() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const contactList = document.getElementById('contactList');
+    contactList.innerHTML = '';
 
     try {
-        await batch.commit();
-        loadContacts();
+        const snapshot = await db.collection('contacts')
+            .where('userId', '==', user.uid)
+            .orderBy('order')
+            .get();
+        
+        const contacts = [];
+        snapshot.forEach(doc => {
+            const contact = { id: doc.id, ...doc.data() };
+            contacts.push(contact);
+            contactList.appendChild(createContactCard(contact));
+        });
+
+        saveContactsToLocal(contacts);
     } catch (error) {
-        console.error("Error deleting selected contacts: ", error);
-        alert('Error deleting selected contacts');
+        console.error("Error loading contacts: ", error);
+        alert('Error loading contacts');
+    }
+}
+
+// Function to initialize contacts from local storage or Firebase
+async function initializeContacts() {
+    const localContacts = loadContactsFromLocal();
+    if (localContacts.length > 0) {
+        const contactList = document.getElementById('contactList');
+        contactList.innerHTML = '';
+        localContacts.forEach(contact => {
+            contactList.appendChild(createContactCard(contact));
+        });
+    } else {
+        await loadContacts();
     }
 }
 
@@ -528,6 +678,22 @@ async function updateCallStatus(id, status) {
     }
 }
 
+// Function to enhance mobile experience
+function enhanceMobileExperience() {
+    const contactCards = document.querySelectorAll('.contact-card');
+    contactCards.forEach(card => {
+        card.addEventListener('touchstart', () => {
+            card.style.transform = 'scale(1.02)';
+        });
+        card.addEventListener('touchend', () => {
+            card.style.transform = 'scale(1)';
+        });
+    });
+}
+
+// Call the function to enhance mobile experience
+document.addEventListener('DOMContentLoaded', enhanceMobileExperience);
+
 // Initialize the contact list and load theme
-loadContacts();
+initializeContacts();
 loadTheme();

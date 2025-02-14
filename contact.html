@@ -37,6 +37,14 @@
                     <option value="Busy">Busy</option>
                 </select>
             </div>
+
+            <div class="select-all">
+                <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)">
+                <label for="selectAll">Select All</label>
+                <button onclick="deleteSelectedContacts()" class="delete-button">
+                    <img src="icons/delete.svg" alt="Delete">
+                </button>
+            </div>
         </div>
 
         <div class="add-contact">

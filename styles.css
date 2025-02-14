@@ -8,17 +8,17 @@
 }
 
 :root {
-    --primary-color: #2563eb;
-    --secondary-color: #3b82f6;
-    --success-color: #059669;
-    --danger-color: #dc2626;
-    --background-color: #f1f5f9;
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --background-color: #f8f9fa;
     --card-background: #ffffff;
-    --text-primary: #1e293b;
-    --text-secondary: #64748b;
-    --border-color: #e2e8f0;
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --border-color: #dee2e6;
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    --radius: 12px;
+    --radius: 8px;
 }
 
 /* Base styles */
@@ -31,11 +31,11 @@ body {
 }
 
 body.dark-mode {
-    --background-color: #1e293b;
-    --card-background: #334155;
-    --text-primary: #f1f5f9;
-    --text-secondary: #cbd5e1;
-    --border-color: #475569;
+    --background-color: #343a40;
+    --card-background: #495057;
+    --text-primary: #f8f9fa;
+    --text-secondary: #ced4da;
+    --border-color: #6c757d;
 }
 
 .container {
@@ -77,7 +77,7 @@ body.dark-mode {
 
 .auth-form .input-field:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
 
 .auth-form button {
@@ -154,7 +154,7 @@ body.dark-mode {
 .whatsapp-button,
 .delete-button {
     flex: 1;
-    min-width: 100px;
+    min-width: 50px;
     text-align: center;
     white-space: nowrap;
     padding: 10px 15px;
@@ -162,6 +162,11 @@ body.dark-mode {
     font-weight: 500;
     transition: all 0.3s ease;
     font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    cursor: pointer;
 }
 
 .call-button {
@@ -171,6 +176,23 @@ body.dark-mode {
     cursor: pointer;
     text-decoration: none;
     margin-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.whatsapp-button {
+    background-color: #25D366;
+    color: white;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
 }
 
 .delete-button {
@@ -179,6 +201,24 @@ body.dark-mode {
     border: none;
     cursor: pointer;
     margin-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.call-button img,
+.whatsapp-button img,
+.delete-button img {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.3s ease;
+}
+
+.call-button:hover img,
+.whatsapp-button:hover img,
+.delete-button:hover img {
+    transform: scale(1.2);
 }
 
 .notes-section {
@@ -217,7 +257,7 @@ body.dark-mode {
 
 .call-status select:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
 
 /* Mobile Styles */
@@ -233,6 +273,8 @@ body.dark-mode {
 
     .contact-card {
         padding: 15px;
+        border-radius: 12px; /* More rounded corners */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Softer shadow */
     }
 
     .action-buttons {
@@ -243,12 +285,51 @@ body.dark-mode {
 
     .contact-header {
         flex-direction: column;
+        align-items: flex-start; /* Align items to the start */
+        gap: 10px;
     }
 
     .input-field,
     button {
         font-size: 16px; /* Better for mobile tapping */
         padding: 12px;
+    }
+
+    .call-button,
+    .whatsapp-button,
+    .delete-button {
+        width: 100%;
+        margin: 5px 0;
+        padding: 12px;
+        font-size: 1rem; /* Larger font size */
+        border-radius: 8px; /* More rounded corners */
+    }
+
+    .notes-input {
+        min-height: 50px; /* Increase minimum height */
+    }
+
+    .favorite-button {
+        font-size: 1.2rem; /* Larger star icon */
+    }
+
+    .tags-container {
+        justify-content: flex-start; /* Align tags to the start */
+    }
+
+    .tag {
+        margin: 2px;
+        padding: 4px 10px; /* Larger padding */
+        font-size: 0.9rem; /* Larger font size */
+    }
+
+    .add-tag-button {
+        padding: 4px 10px; /* Larger padding */
+        font-size: 0.9rem; /* Larger font size */
+    }
+
+    h1 {
+        font-size: 1.75rem; /* Larger heading */
     }
 }
 
@@ -293,7 +374,7 @@ h1 {
 .input-field:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
 
 .button-group {
@@ -407,6 +488,24 @@ h1 {
     font-weight: 500;
     transition: all 0.3s ease;
     font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.whatsapp-button {
+    background-color: #25D366;
+    color: white;
+    text-decoration: none;
+    padding: 12px 20px;
+    border-radius: var(--radius);
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
 }
 
 .delete-button {
@@ -420,6 +519,24 @@ h1 {
     font-weight: 500;
     transition: all 0.3s ease;
     font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.call-button img,
+.whatsapp-button img,
+.delete-button img {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.3s ease;
+}
+
+.call-button:hover img,
+.whatsapp-button:hover img,
+.delete-button:hover img {
+    transform: scale(1.2);
 }
 
 .notes-section {
@@ -762,6 +879,10 @@ h1 {
     border-radius: var(--radius);
     font-weight: 500;
     transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
 }
 
 .sort-buttons {
@@ -785,15 +906,15 @@ h1 {
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --background-color: #1e293b;
-        --card-background: #334155;
-        --text-primary: #f1f5f9;
-        --text-secondary: #cbd5e1;
-        --border-color: #475569;
+        --background-color: #343a40;
+        --card-background: #495057;
+        --text-primary: #f8f9fa;
+        --text-secondary: #ced4da;
+        --border-color: #6c757d;
     }
 
     .input-field {
-        background-color: #1e293b;
+        background-color: #343a40;
         color: var(--text-primary);
     }
 }
@@ -834,6 +955,13 @@ h1 {
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; }
 }
 
 /* Mobile Responsiveness Fixes */
@@ -897,4 +1025,34 @@ h1 {
         justify-content: space-between;
         align-items: center;
     }
+}
+
+#undoContainer {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: fadeInOut 5s forwards;
+}
+
+#undoContainer button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+#undoContainer #countdown {
+    font-weight: bold;
 }
