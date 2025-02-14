@@ -15,11 +15,32 @@
     <div class="container">
         <div class="header-container">
             <h1>Contact Directory</h1>
-            <button onclick="logout()" class="logout-button">Logout</button>
+            <div class="header-actions">
+                <button onclick="toggleTheme()" class="theme-toggle-button">Toggle Theme</button>
+                <button onclick="logout()" class="logout-button">Logout</button>
+            </div>
         </div>
+
+        <div class="controls-container">
+            <div class="search-contact">
+                <input type="text" id="searchInput" class="input-field" placeholder="Search contacts..." oninput="searchContacts()">
+            </div>
+
+            <div class="sort-buttons">
+                <button onclick="sortContacts('name')" class="sort-button">Sort by Name</button>
+                <button onclick="sortContacts('recent')" class="sort-button">Sort by Recent</button>
+                <select onchange="filterByCallStatus(this.value)" class="sort-button">
+                    <option value="all">All Contacts</option>
+                    <option value="Not Called">Not Called</option>
+                    <option value="Answered">Answered</option>
+                    <option value="Not Answered">Not Answered</option>
+                    <option value="Busy">Busy</option>
+                </select>
+            </div>
+        </div>
+
         <div class="add-contact">
-            <textarea id="contactInput" class="input-field" rows="4"
-                placeholder="Enter contact(s): Single contact like 'John 1234567890' or bulk data"></textarea>
+            <textarea id="contactInput" class="input-field" rows="4" placeholder="Enter contact(s): Single contact like 'John 1234567890' or bulk data"></textarea>
             <div class="button-group">
                 <button onclick="addContact()" class="add-button">Add Single Contact</button>
                 <button onclick="handleBulkData()" class="bulk-button">Process Bulk Data</button>
@@ -40,13 +61,7 @@
                 </button>
             </div>
         </div>
-        <div class="search-contact">
-            <input type="text" id="searchInput" class="input-field" placeholder="Search contacts by name or phone" oninput="searchContacts()">
-        </div>
-        <div class="select-all">
-            <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"> Select All
-            <button onclick="deleteSelectedContacts()" class="delete-button">Delete Selected</button>
-        </div>
+
         <div class="contact-list" id="contactList"></div>
     </div>
 

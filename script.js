@@ -230,18 +230,87 @@ function createEditableCard(contact) {
     `;
 }
 
+// Add sort functionality
+function sortContacts(method) {
+    const contactList = document.getElementById('contactList');
+    const contacts = Array.from(contactList.getElementsByClassName('contact-card'));
+    
+    contacts.sort((a, b) => {
+        const nameA = a.querySelector('.name').textContent.toLowerCase();
+        const nameB = b.querySelector('.name').textContent.toLowerCase();
+        
+        switch(method) {
+            case 'name':
+                return nameA.localeCompare(nameB);
+            case 'recent':
+                const timeA = new Date(a.querySelector('.timestamp').textContent.split(': ')[1] || 0);
+                const timeB = new Date(b.querySelector('.timestamp').textContent.split(': ')[1] || 0);
+                return timeB - timeA;
+            default:
+                return 0;
+        }
+    });
+    
+    contactList.innerHTML = '';
+    contacts.forEach(contact => contactList.appendChild(contact));
+}
+
+// Add favorite functionality
+async function toggleFavorite(id) {
+    const contact = await db.collection('contacts').doc(id).get();
+    const isFavorite = contact.data().favorite || false;
+    
+    await db.collection('contacts').doc(id).update({
+        favorite: !isFavorite,
+        timestamp: new Date().toISOString()
+    });
+    
+    loadContacts();
+}
+
+// Add tag/group functionality
+async function addTag(id, tag) {
+    const contact = await db.collection('contacts').doc(id).get();
+    const tags = contact.data().tags || [];
+    
+    if (!tags.includes(tag)) {
+        tags.push(tag);
+        await db.collection('contacts').doc(id).update({
+            tags: tags,
+            timestamp: new Date().toISOString()
+        });
+    }
+    
+    loadContacts();
+}
+
 // Define createNormalCard as a global function
 function createNormalCard(contact) {
+    const tags = contact.tags || [];
+    const isFavorite = contact.favorite || false;
+    const callStatus = contact.callStatus || 'Not Called';
+    
     return `
         <div class="contact-header">
             <input type="checkbox" class="contact-checkbox" data-id="${contact.id}">
             <div class="contact-info">
-                <div class="name">${contact.name}</div>
-                <div class="phone">${contact.phone}</div>
-                <button onclick="startEdit('${contact.id}')" class="edit-button">Edit</button>
+                <div class="name-row">
+                    <div class="name">${contact.name}</div>
+                    <button onclick="event.stopPropagation(); toggleFavorite('${contact.id}')" class="favorite-button ${isFavorite ? 'active' : ''}">
+                        ★
+                    </button>
+                </div>
+                <div class="phone" title="${contact.phone}">${contact.phone}</div>
+                <div class="tags-container">
+                    ${tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    <button onclick="showTagDialog('${contact.id}')" class="add-tag-button">+ Add Tag</button>
+                </div>
             </div>
-            <a href="tel:+91${contact.phone}" class="call-button">Call</a>
-            <button onclick="deleteContact('${contact.id}')" class="delete-button">Delete</button>
+            <div class="action-buttons">
+                <a href="tel:+91${contact.phone}" class="call-button">📞 Call</a>
+                <a href="https://wa.me/91${contact.phone}" class="whatsapp-button" target="_blank">📱 WhatsApp</a>
+                <button onclick="deleteContact('${contact.id}')" class="delete-button">🗑️ Delete</button>
+            </div>
         </div>
         <div class="notes-section">
             <textarea 
@@ -253,7 +322,42 @@ function createNormalCard(contact) {
                 ${contact.timestamp ? 'Last updated: ' + new Date(contact.timestamp).toLocaleString() : ''}
             </div>
         </div>
+        <div class="call-status">
+            <select onchange="updateCallStatus('${contact.id}', this.value)">
+                <option value="Not Called" ${callStatus === 'Not Called' ? 'selected' : ''}>Not Called</option>
+                <option value="Answered" ${callStatus === 'Answered' ? 'selected' : ''}>Answered</option>
+                <option value="Not Answered" ${callStatus === 'Not Answered' ? 'selected' : ''}>Not Answered</option>
+                <option value="Busy" ${callStatus === 'Busy' ? 'selected' : ''}>Busy</option>
+            </select>
+        </div>
     `;
+}
+
+// Add tag dialog
+function showTagDialog(id) {
+    const tag = prompt('Enter tag name:');
+    if (tag) {
+        addTag(id, tag);
+    }
+}
+
+// Filter contacts by tag
+function filterByTag(tag) {
+    const contacts = document.getElementsByClassName('contact-card');
+    Array.from(contacts).forEach(card => {
+        const tags = card.querySelectorAll('.tag');
+        const hasTag = Array.from(tags).some(t => t.textContent === tag);
+        card.style.display = tag === 'all' || hasTag ? '' : 'none';
+    });
+}
+
+// Function to filter contacts by call status
+function filterByCallStatus(status) {
+    const contacts = document.getElementsByClassName('contact-card');
+    Array.from(contacts).forEach(card => {
+        const callStatus = card.querySelector('.call-status select').value;
+        card.style.display = status === 'all' || callStatus === status ? '' : 'none';
+    });
 }
 
 // Modified createContactCard function
@@ -396,5 +500,34 @@ function searchContacts() {
     });
 }
 
-// Initialize the contact list
+// Function to toggle theme
+function toggleTheme() {
+    const body = document.body;
+    body.classList.toggle('dark-mode');
+    localStorage.setItem('theme', body.classList.contains('dark-mode') ? 'dark' : 'light');
+}
+
+// Function to load theme from localStorage
+function loadTheme() {
+    const theme = localStorage.getItem('theme');
+    if (theme === 'dark') {
+        document.body.classList.add('dark-mode');
+    }
+}
+
+// Function to update call status
+async function updateCallStatus(id, status) {
+    try {
+        await db.collection('contacts').doc(id).update({
+            callStatus: status,
+            timestamp: new Date().toISOString()
+        });
+        loadContacts();
+    } catch (error) {
+        console.error("Error updating call status: ", error);
+    }
+}
+
+// Initialize the contact list and load theme
 loadContacts();
+loadTheme();
