@@ -383,22 +383,6 @@ async function toggleFavorite(id) {
     loadContacts();
 }
 
-// Add tag/group functionality
-async function addTag(id, tag) {
-    const contact = await db.collection('contacts').doc(id).get();
-    const tags = contact.data().tags || [];
-    
-    if (!tags.includes(tag)) {
-        tags.push(tag);
-        await db.collection('contacts').doc(id).update({
-            tags: tags,
-            timestamp: new Date().toISOString()
-        });
-    }
-    
-    loadContacts();
-}
-
 // Define createNormalCard as a global function
 function createNormalCard(contact) {
     const tags = contact.tags || [];
@@ -412,24 +396,23 @@ function createNormalCard(contact) {
                 <div class="name-row">
                     <div class="name">${contact.name}</div>
                     <button onclick="event.stopPropagation(); toggleFavorite('${contact.id}')" class="favorite-button ${isFavorite ? 'active' : ''}">
-                        ★
+                        <i class="fas fa-star"></i>
                     </button>
                 </div>
                 <div class="phone" title="${contact.phone}">${contact.phone}</div>
                 <div class="tags-container">
                     ${tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-                    <button onclick="showTagDialog('${contact.id}')" class="add-tag-button">+ Add Tag</button>
                 </div>
             </div>
             <div class="action-buttons">
                 <a href="tel:+91${contact.phone}" class="call-button">
-                    <img src="icons/call.svg" alt="Call">
+                    <i class="fas fa-phone"></i>
                 </a>
                 <a href="https://wa.me/91${contact.phone}" class="whatsapp-button" target="_blank">
-                    <img src="icons/whatsapp.svg" alt="WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
                 </a>
                 <button onclick="deleteContact('${contact.id}')" class="delete-button">
-                    <img src="icons/delete.svg" alt="Delete">
+                    <i class="fas fa-trash"></i>
                 </button>
             </div>
         </div>
@@ -452,14 +435,6 @@ function createNormalCard(contact) {
             </select>
         </div>
     `;
-}
-
-// Add tag dialog
-function showTagDialog(id) {
-    const tag = prompt('Enter tag name:');
-    if (tag) {
-        addTag(id, tag);
-    }
 }
 
 // Filter contacts by tag

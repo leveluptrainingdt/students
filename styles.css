@@ -323,11 +323,6 @@ body.dark-mode {
         font-size: 0.9rem; /* Larger font size */
     }
 
-    .add-tag-button {
-        padding: 4px 10px; /* Larger padding */
-        font-size: 0.9rem; /* Larger font size */
-    }
-
     h1 {
         font-size: 1.75rem; /* Larger heading */
     }
@@ -627,7 +622,7 @@ h1 {
         text-align: center;
         gap: 10px;
         position: relative;
-        padding-top: 20px;
+        /* padding-top: 20px; */
     }
 
     .call-button,
@@ -741,8 +736,81 @@ h1 {
     margin-bottom: 10px;
 }
 
+/* Custom Checkbox Styles */
 .contact-checkbox {
-    margin-right: 10px;
+    position: relative;
+    appearance: none;
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--primary-color);
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+    margin-right: 12px;
+    vertical-align: middle;
+    transition: all 0.3s ease;
+    background-color: transparent;
+}
+
+.contact-checkbox:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.contact-checkbox:checked::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 14px;
+}
+
+.contact-checkbox:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}
+
+.contact-checkbox:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.3);
+}
+
+/* Select All Checkbox Container */
+.select-all {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: var(--card-background);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.select-all label {
+    color: var(--text-primary);
+    font-weight: 500;
+    user-select: none;
+    cursor: pointer;
+}
+
+#selectAll {
+    composes: contact-checkbox;
+}
+
+/* Dark Mode Adjustment */
+body.dark-mode .contact-checkbox {
+    border-color: var(--text-secondary);
+}
+
+body.dark-mode .contact-checkbox:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
 }
 
 .auth-container {
@@ -842,16 +910,6 @@ h1 {
     padding: 2px 8px;
     border-radius: 12px;
     font-size: 0.8rem;
-}
-
-.add-tag-button {
-    background: none;
-    border: 1px dashed var(--border-color);
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    cursor: pointer;
-    color: var(--text-secondary);
 }
 
 .action-buttons {
@@ -1055,4 +1113,160 @@ h1 {
 
 #undoContainer #countdown {
     font-weight: bold;
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+    background: var(--border-color);
+}
+
+.light-icon {
+    display: none;
+}
+
+.dark-icon {
+    display: inline-block;
+}
+
+body.dark-mode .light-icon {
+    display: inline-block;
+}
+
+body.dark-mode .dark-icon {
+    display: none;
+}
+
+/* Enhanced Checkbox Styles */
+.contact-checkbox {
+    position: relative;
+    appearance: none;
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--primary-color);
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+    margin-right: 12px;
+    vertical-align: middle;
+    transition: all 0.3s ease;
+    background-color: transparent;
+}
+
+.contact-checkbox:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.contact-checkbox:checked::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 14px;
+}
+
+.contact-checkbox:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}
+
+.contact-checkbox:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.3);
+}
+
+/* Select All Checkbox Container */
+.select-all {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: var(--card-background);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.select-all label {
+    color: var(--text-primary);
+    font-weight: 500;
+    user-select: none;
+    cursor: pointer;
+}
+
+#selectAll {
+    composes: contact-checkbox;
+}
+
+/* Dark Mode Adjustment */
+body.dark-mode .contact-checkbox {
+    border-color: var(--text-secondary);
+}
+
+body.dark-mode .contact-checkbox:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Dark Mode Enhancements */
+body.dark-mode {
+    --text-primary: #ffffff;
+    --text-secondary: #ced4da;
+    --background-color: #1a1a1a;
+    --card-background: #2d2d2d;
+    --border-color: #404040;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode .contact-card {
+    background: var(--card-background);
+}
+
+body.dark-mode .name {
+    color: var(--text-primary);
+}
+
+body.dark-mode .phone {
+    color: var(--text-secondary);
+}
+
+body.dark-mode .notes-input {
+    background: var(--card-background);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .timestamp {
+    color: var(--text-secondary);
+}
+
+/* Header Actions */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Icon Colors */
+.call-button i,
+.whatsapp-button i,
+.delete-button i {
+    font-size: 1.2rem;
+    color: white;
 }
