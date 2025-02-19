@@ -432,6 +432,7 @@ function createNormalCard(contact) {
                 <option value="Answered" ${callStatus === 'Answered' ? 'selected' : ''}>Answered</option>
                 <option value="Not Answered" ${callStatus === 'Not Answered' ? 'selected' : ''}>Not Answered</option>
                 <option value="Busy" ${callStatus === 'Busy' ? 'selected' : ''}>Busy</option>
+                <option value="Not Interested" ${callStatus === 'Not Interested' ? 'selected' : ''}>Not Interested</option>
             </select>
         </div>
     `;
