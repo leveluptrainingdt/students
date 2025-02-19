@@ -427,13 +427,15 @@ function createNormalCard(contact) {
             </div>
         </div>
         <div class="call-status">
-            <select onchange="updateCallStatus('${contact.id}', this.value)">
-                <option value="Not Called" ${callStatus === 'Not Called' ? 'selected' : ''}>Not Called</option>
-                <option value="Answered" ${callStatus === 'Answered' ? 'selected' : ''}>Answered</option>
-                <option value="Not Answered" ${callStatus === 'Not Answered' ? 'selected' : ''}>Not Answered</option>
-                <option value="Busy" ${callStatus === 'Busy' ? 'selected' : ''}>Busy</option>
-                <option value="Not Interested" ${callStatus === 'Not Interested' ? 'selected' : ''}>Not Interested</option>
-            </select>
+            <form onsubmit="event.preventDefault();">
+                <select onchange="updateCallStatus('${contact.id}', this.value)">
+                    <option value="Not Called" ${callStatus === 'Not Called' ? 'selected' : ''}>Not Called</option>
+                    <option value="Answered" ${callStatus === 'Answered' ? 'selected' : ''}>Answered</option>
+                    <option value="Not Answered" ${callStatus === 'Not Answered' ? 'selected' : ''}>Not Answered</option>
+                    <option value="Busy" ${callStatus === 'Busy' ? 'selected' : ''}>Busy</option>
+                    <option value="Not Interested" ${callStatus === 'Not Interested' ? 'selected' : ''}>Not Interested</option>
+                </select>
+            </form>
         </div>
     `;
 }
@@ -648,7 +650,9 @@ async function updateCallStatus(id, status) {
             callStatus: status,
             timestamp: new Date().toISOString()
         });
-        loadContacts();
+        // Don't reload the entire contact list, just update the status
+        const select = document.querySelector(`[data-id="${id}"]`).closest('.contact-card').querySelector('select');
+        select.value = status;
     } catch (error) {
         console.error("Error updating call status: ", error);
     }
